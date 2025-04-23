@@ -10,7 +10,7 @@ import (
 
 	"cloud.google.com/go/compute/metadata"
 	"github.com/actions/actions-runner-controller/cloudrunners/gcp/pkg/gce"
-	"github.com/actions/actions-runner-controller/cloudrunners/gcp/pkg/remote"
+	"github.com/actions/actions-runner-controller/cloudrunners/pkg/remote"
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/api/compute/v1"
 	"k8s.io/klog/v2"
@@ -123,6 +123,10 @@ func run(ctx context.Context) error {
 		}
 	}()
 
+	if err := instance.WaitForInstanceReady(ctx); err != nil {
+		return fmt.Errorf("waiting for instance: %w", err)
+	}
+
 	// TODO: Use internal IP or external IP?  Internal IP might be tricky cross-project.  External IP means we need a public IP.
 	ip := instance.ExternalIP()
 	if ip == "" {
@@ -151,34 +155,6 @@ func run(ctx context.Context) error {
 		return fmt.Errorf("creating machine image: %w", err)
 	}
 	log.Info("created disk image", "disk.name", image.Name, "disk.selfLink", image.SelfLink)
-
-	return nil
-}
-
-func createImage(ctx context.Context, ip string, sshConfig *ssh.ClientConfig) error {
-	log := klog.FromContext(ctx)
-
-	sshClient, err := remote.DialWithRetry(ctx, "tcp", ip+":22", sshConfig)
-	if err != nil {
-		return fmt.Errorf("failed to connect to ssh on %q: %w", ip, err)
-	}
-	defer sshClient.Close()
-
-	if err := sshClient.WriteFile(ctx, ".", "build-image.sh", buildImage, "0755"); err != nil {
-		return fmt.Errorf("doing scp of build-image.sh: %w", err)
-	}
-	for _, cmd := range []string{
-		"sudo ./build-image.sh",
-	} {
-		log.Info("running ssh command", "command", cmd)
-
-		output, err := sshClient.RunCommand(ctx, cmd)
-		if err != nil {
-			log.Error(err, "running ssh command", "command", cmd, "output", output)
-			return fmt.Errorf("running command %q: %w", cmd, err)
-		}
-		log.Info("command succeeded", "command", cmd, "output", string(output))
-	}
 
 	return nil
 }

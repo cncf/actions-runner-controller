@@ -1,9 +1,10 @@
-module github.com/actions/actions-runner-controller/cloudrunners/gcp
+module github.com/actions/actions-runner-controller/cloudrunners
 
 go 1.24.0
 
 require (
 	cloud.google.com/go/compute/metadata v0.6.0
+	github.com/oracle/oci-go-sdk/v65 v65.65.0
 	golang.org/x/crypto v0.37.0
 	google.golang.org/api v0.229.0
 	k8s.io/klog/v2 v2.130.1
@@ -15,10 +16,12 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/gofrs/flock v0.8.1 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.6 // indirect
 	github.com/googleapis/gax-go/v2 v2.14.1 // indirect
+	github.com/sony/gobreaker v0.5.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.60.0 // indirect
 	go.opentelemetry.io/otel v1.35.0 // indirect
