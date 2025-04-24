@@ -10,7 +10,7 @@ import (
 
 	"cloud.google.com/go/compute/metadata"
 	"github.com/actions/actions-runner-controller/cloudrunners/gcp/pkg/gce"
-	"github.com/actions/actions-runner-controller/cloudrunners/gcp/pkg/remote"
+	"github.com/actions/actions-runner-controller/cloudrunners/pkg/remote"
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/api/compute/v1"
 	"k8s.io/klog/v2"
@@ -130,6 +130,9 @@ func run(ctx context.Context) error {
 		}
 	}()
 
+	if err := instance.WaitForInstanceReady(ctx); err != nil {
+		return fmt.Errorf("waiting for instance: %w", err)
+	}
 	// TODO: Use internal IP or external IP?  Internal IP might be tricky cross-project.  External IP means we need a public IP.
 	ip := instance.InternalIP()
 	if ip == "" {

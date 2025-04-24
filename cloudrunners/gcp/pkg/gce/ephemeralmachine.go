@@ -50,6 +50,11 @@ func NewEphemeralMachine(ctx context.Context, computeClient *compute.Service, pr
 	return m, nil
 }
 
+func (m *EphemeralMachine) WaitForInstanceReady(ctx context.Context) error {
+	// TODO: move the wait here?
+	return nil
+}
+
 func (m *EphemeralMachine) Close() error {
 	return m.Delete(context.Background())
 }
